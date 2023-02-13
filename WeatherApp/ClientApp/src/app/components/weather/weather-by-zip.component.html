@@ -1,0 +1,58 @@
+﻿
+<div class="row">
+    <div class="col-12">
+        <h1>Weather</h1>
+        <p>Enter your zip code and we will show current temperature and your city!</p>
+
+        <form class="form-inline ml-3" [formGroup]="weatherForm" (ngSubmit)="showCurrentWeather()">
+            <div class="form-group row">
+                <input type="text"
+                       class="form-control mb-2 mr-sm-2"
+                       id="zipCode"
+                       placeholder="12345"
+                       required
+                       pattern="[0-9]{5}"
+                       maxlength="5"
+                       name="zipCode"
+                       formControlName="zipCode">
+                <button type="submit" class="btn btn-primary mb-2" [disabled]="weatherForm.invalid || isLoading">
+                    <span *ngIf="isLoading"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          aria-hidden="true"></span>
+                    {{ isLoading? "Loading" : "Show" }}
+                </button>
+            </div>
+        </form>
+        <div *ngIf="zipCode.invalid && (zipCode.dirty || zipCode.touched)"
+             class="text-danger">
+            <ng-container *ngIf="zipCode.errors?.required">
+                Input zip code!
+            </ng-container>
+            <ng-container *ngIf="zipCode.errors?.pattern">
+                Zip code must consists of 5 digits!
+            </ng-container>
+        </div>
+    </div>
+
+</div>
+<div *ngIf="weatherStateRequestResult$ | async as weatherStateRequestResult"
+     class="row mt-2">
+    <div class="col-12">
+        <div *ngIf="weatherStateRequestResult.isSuccess && weatherStateRequestResult.data; else failedRequest"
+             class="card bg-success bg-opacity-50"
+             style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title">City: {{ weatherStateRequestResult.data.city }}</h5>
+                <p class="card-text">Temperature: {{ weatherStateRequestResult.data.temperature }} &#8451;</p>
+                <p class="card-text">Request time: {{ weatherStateRequestResult.data.requestTime | date:'medium' }}</p>
+            </div>
+        </div>
+        <ng-template #failedRequest>
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">Request failed!</h4>
+                <p>{{ weatherStateRequestResult.errorMessage }}</p>
+            </div>
+        </ng-template>
+    </div>
+</div>
